@@ -21,8 +21,6 @@ declare -A list_folder=( ["nc-devops-pipeline-shared-libraries/"]="develop"
 						 ["nc-devops-docker-build-gradle-plugin/"]="master" 
 						 ["nc-devops-docker-run-gradle-plugin/"]="master" )
 						 
-# declare -A exclude_folder=( "kitty" )						 
-
 print_style () {
 
     if [ "$2" == "info" ] ; then
@@ -45,38 +43,42 @@ print_style () {
 
 for folder in "${!list_folder[@]}"; do 
 	print_style "Updating repository $folder \n" "info";
-	if [ "$folder" != "nc-devops-pipeline-shared-libraries/" ]; then
-		cd $folder
-		CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-		print_style "\tCurrent branch is " "info"
-		print_style "$CURRENT_BRANCH \n" "danger"
-		git diff-index --quiet HEAD --
-		if [ "$?" != 0 ]; then
-			print_style "\t\tYou have unstage file in $CURRENT_BRANCH branch \n" "danger"
-		fi
-		if [ "$CURRENT_BRANCH" == "${list_folder[$folder]}" ]; then
-			print_style "\t\tUpdating main branch ... \n" "info"
-			git pull origin $CURRENT_BRANCH
-		else
-			print_style "\t\tUsing different branch ... \n" "warning"
-			print_style "\t\tGit stash ... \n" "info"
-			git stash
-			print_style "\t\tCheckout to main branch ... \n" "info"
-			git checkout ${list_folder[$folder]}
-			print_style "\t\tUpdate main branch ... \n" "info"
-			git pull origin ${list_folder[$folder]}
-			print_style "\t\tCheckout to current branch ... \n" "info"
-			git checkout $CURRENT_BRANCH
-			print_style "\t\tApply stash ... \n" "info"
-			git stash pop stash@{0}
-		fi
-		printf " \n"
-		cd ..
-	#echo "$folder - ${list_folder[$folder]}"; 
-	else
-		echo "shared-libraries"
+	cd $folder
+	CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	print_style "\tCurrent branch is " "info"
+	print_style "$CURRENT_BRANCH \n" "danger"
+	git diff-index --quiet HEAD --
+	if [ "$?" != 0 ]; then
+		#isChange=true
+		print_style "\t\tYou have unstage file in $CURRENT_BRANCH branch \n" "danger"
+		# read user choice here (s -> skip this repo, c -> continue using git stash)
 	fi
+	if [ "$CURRENT_BRANCH" == "${list_folder[$folder]}" ]; then
+		print_style "\t\tUpdating main branch ... \n" "info"
+		#should check if conflict 
+		git pull origin $CURRENT_BRANCH
+	else
+		print_style "\t\tUsing different branch ... \n" "warning"
+		print_style "\t\tGit stash ... \n" "info"
+		git stash
+		print_style "\t\tCheckout to main branch ... \n" "info"
+		git checkout ${list_folder[$folder]}
+		print_style "\t\tUpdate main branch ... \n" "info"
+		git pull origin ${list_folder[$folder]}
+		print_style "\t\tCheckout to current branch ... \n" "info"
+		git checkout $CURRENT_BRANCH
+		#if isChange -> Apply stash
+		print_style "\t\tApply stash ... \n" "info"
+		git stash pop stash@{0}
+	fi
+	printf " \n"
+	cd ..
+	#echo "$folder - ${list_folder[$folder]}"; 
 done
+
+# function to update main branch 
+#   - include: check if pull request will be conflict -> if yes: rebase or abort, if no: git pull
+
 
 #for d in */ ; do
 #if [ "$d" != "nc-devops-pipeline-shared-libraries/" ]; then
@@ -114,5 +116,7 @@ done
 #	fi
 #fi
 #done
+
+
 
 read -p " Want to exit ??"
