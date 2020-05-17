@@ -1,4 +1,9 @@
-declare -A list_folder=( ["nc-devops-pipeline-shared-libraries/"]="develop" 
+############
+# Script update main branch: automatic update the main branch of that repository. If your current branch is not the main branch, rebase it.
+#   - list_folder: map of folder and man branch (in case master is not the main branch)
+#   - exclude_folder: map of exclude folder
+############
+declare -A list_folder=( ["nc-devops-pipeline-shared-libraries/"]="develop"
 						 ["MultiBranchPipeline/"]="master" 
 						 ["NCCGV001.wiki/"]="wikiMaster" 
 						 ["nc-devops-azure-deployer/"]="develop" 
@@ -22,7 +27,6 @@ declare -A list_folder=( ["nc-devops-pipeline-shared-libraries/"]="develop"
 						 ["nc-devops-docker-run-gradle-plugin/"]="master" )
 						 
 print_style () {
-
     if [ "$2" == "info" ] ; then
         COLOR="96m"
     elif [ "$2" == "success" ] ; then
